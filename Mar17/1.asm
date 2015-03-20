@@ -8,7 +8,7 @@ entry:
 	
 	saveMode db 0
 	count dw 0
-	number dw 0	
+	number dw 0230h	
 	toprint label dword
 		toprint_off dw 160 * 15 + 80
 		toprint_seg dw 0b800h
@@ -40,16 +40,19 @@ start:
 	int		21h	
 	
 waiting:
-	mov 	ah, 00h
+	mov 	ah, 01h
 	int 	16h	
-	cmp 	al, 1bh
-	je 		exit
-	;cmp 	count, 18
-	;je		print
-	jmp 	print
+	jnz		exit	
+	cmp 	count, 18
+	je		print
+	; jmp 	print
 	jmp		waiting
 
 exit:	
+	mov 	ah, 00h
+	int 	16h	
+	cmp 	ah, 1
+	jne 	waiting
 	; возврат в преждний режим
 	mov 	ah, 0
 	mov 	al, saveMode
@@ -59,17 +62,22 @@ exit:
 	mov		dx, word ptr cs:[int08_off]
 	mov		ds, word ptr cs:[int08_seg]
 	int		21h
-		
 	ret
 	
 print:
 	mov		count, 0
 	mov		ax, number
-	mov 	word ptr cs:[toprint], ax
-	add 	number, 1
-	mov 	ax, number
-	mov 	dx, 10
+	push 	0b800h
+	pop		es
+	mov 	bx, toprint_off
+	mov 	es:[bx], al
+	add 	ax, 1
+	sub 	ax, 230h
+	mov 	dl, 0Ah
 	div 	dl
+	xchg	al, ah
+	add		al, 30h
+	mov 	ah, 02h
 	mov 	number, ax
 	jmp 	waiting
 end entry
