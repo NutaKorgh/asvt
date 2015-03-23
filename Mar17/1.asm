@@ -6,6 +6,7 @@
 entry:
 	jmp		start		
 	
+	stop dw 0000h
 	saveMode db 0
 	ticks dw 0
 	unbalancedSecs dw 0
@@ -24,7 +25,10 @@ entry:
 		int08_seg dw 0000h
 	
 newint08 proc
-	add		ticks, 1	
+	cmp 	stop, 0001h
+	je 		endInt
+	add		ticks, 1
+endInt:	
 	jmp 	dword ptr cs:[oldint08]
 newint08 endp
 
@@ -50,10 +54,11 @@ start:
 	mov		bx, toprint_div
 	mov 	al, 3Ah
 	mov		es:[bx], al
+	jmp 	print
 waiting:
 	mov 	ah, 01h
 	int 	16h	
-	jnz		exit	
+	jnz		exit
 continueWaiting:
 	cmp 	unbalancedSecs, 5
 	je 		longerWait
@@ -125,13 +130,21 @@ incPart proc
 	add		al, 30h	
 	ret
 incPart	endp
-	
+
+pauseClock proc
+	xor		stop, 0001h
+	ret
+pauseClock endp
+
 exit:	
 	mov 	ah, 00h
 	int 	16h	
+	cmp 	al, 20h
+	jne 	continueExit
+	call	pauseClock
+continueExit:
 	cmp 	ah, 1
-	jne 	continueWaiting
-	; возврат в преждний режим
+	jne		continueWaiting
 	mov 	ah, 0
 	mov 	al, saveMode
 	int 	10h
