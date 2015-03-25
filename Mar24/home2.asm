@@ -23,14 +23,6 @@ entry:
 	oldint2f label dword
 		int2f_off dw 0000h
 		int2f_seg dw 0000h
-	
-	oldint08 label dword
-		int08_off dw 0000h
-		int08_seg dw 0000h
-	
-	oldint10 label dword
-		int10_off dw 0000h
-		int10_seg dw 0000h
 		
 	oldint21 label dword
 		int21_off dw 0000h
@@ -40,23 +32,15 @@ newint21 proc
 	jmp 	dword ptr cs:[oldint21]
 newint21 endp
 
-newint08 proc	
-	jmp 	dword ptr cs:[oldint08]
-newint08 endp
-
-newint10 proc	
-	jmp 	dword ptr cs:[oldint10]
-newint10 endp
-
 newint2f proc
-	cmp 	ax, 0AC2fh
+	cmp 	ax, 0AD2fh
 	jne 	i2fExit
-	cmp 	bx, 0BC2fh
+	cmp 	bx, 0BD2fh
 	jne 	i2fExit
 
 checked:
-	mov 	ax, 02fACh
-	mov 	bx, 02fBCh
+	mov 	ax, 02fADh
+	mov 	bx, 02fBDh
 	push 	cs
 	pop 	es	
 	iret
@@ -110,25 +94,7 @@ install:
 		
 		mov 	ax, 2521h	
 		mov		dx, offset newint21
-		int		21h	
-		
-		mov		ax, 3510h
-		int		21h
-		mov		word ptr cs:[int10_off], bx
-		mov		word ptr cs:[int10_seg], es
-		
-		mov 	ax, 2510h	
-		mov		dx, offset newint10
-		int		21h	
-		
-		mov		ax, 3508h
-		int		21h
-		mov		word ptr cs:[int08_off], bx
-		mov		word ptr cs:[int08_seg], es
-		
-		mov 	ax, 2508h	
-		mov		dx, offset newint08
-		int		21h	
+		int		21h			
 		
 		mov 	ax, 0900h
 		mov 	dx, offset msg_installed
@@ -158,14 +124,8 @@ uninstall:
 	mov 	al, 21h
 	mov 	dx, offset newint21
 	call 	checkTop
-	mov 	al, 08h
-	mov 	dx, offset newint08
-	call 	checkTop
-	mov 	al, 10h
-	mov 	dx, offset newint10
-	call 	checkTop
 	
-	cmp 	onTheTop, 4
+	cmp 	onTheTop, 2
 	jne 	noUninstalled	
 	killTsr:	
 		push	tsr_seg
@@ -222,16 +182,6 @@ returnHandlers proc
 	mov		dx, word ptr es:[int21_off]
 	mov		ds, word ptr es:[int21_seg]
 	int		21h
-	
-	mov 	ax, 2508h	
-	mov		dx, word ptr es:[int08_off]
-	mov		ds, word ptr es:[int08_seg]
-	int		21h
-	
-	mov 	ax, 2510h	
-	mov		dx, word ptr es:[int10_off]
-	mov		ds, word ptr es:[int10_seg]
-	int		21h
 returnHandlers endp	
 
 consoleRead proc
@@ -281,12 +231,12 @@ consoleRead endp
 
 checkLaunched proc
 	mov 	isLaunched, 0
-	mov 	ax, 0AC2fh
-	mov 	bx, 0BC2fh
+	mov 	ax, 0AD2fh
+	mov 	bx, 0BD2fh
 	int 	2fh
-	cmp 	ax, 02fACh
+	cmp 	ax, 02fADh
 	jne		checkLaunchedExit
-	cmp 	bx, 02fBCh
+	cmp 	bx, 02fBDh
 	jne 	checkLaunchedExit
 	mov		isLaunched, 1
 	push 	es
