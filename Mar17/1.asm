@@ -136,6 +136,14 @@ pauseClock proc
 	ret
 pauseClock endp
 
+clear proc
+	mov sec1, 0030h
+	mov sec2, 0030h
+	mov min1, 0030h
+	mov min2, 0030h
+	ret
+clear endp
+
 exit:	
 	mov 	ah, 00h
 	int 	16h	
@@ -143,6 +151,10 @@ exit:
 	jne 	continueExit
 	call	pauseClock
 continueExit:
+	cmp 	al, 3Dh
+	jne		continueExit2
+	call 	clear
+continueExit2:
 	cmp 	ah, 1
 	jne		continueWaiting
 	mov 	ah, 0
