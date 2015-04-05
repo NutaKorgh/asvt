@@ -5,11 +5,14 @@
 
 entry:
 	jmp		start		
-	
-	save_mode db 0		
+		
 	video_mode db 0
 	video_page db 0
 	error_read db 0
+	cursor_start_row db 05
+	cursor_start_column db 0	
+	cursor_cur_row db 0
+	cursor_cur_column db 0
 	toprint_seg1 dw 0b800h
 	toprint_seg2 dw 0b000h
 	toprint_off1 dw 80 * 24 + 70	
@@ -29,6 +32,7 @@ start:
 	push 	toprint_seg1
 	pop 	es
 	mov 	bx, toprint_off2
+	mov		cursor_start_column, 24
 	
 	cmp 	video_mode, 0
 	je 		width40
@@ -36,17 +40,18 @@ start:
 	je 		width40
 	cmp 	video_mode, 7
 	je 		changeSeg
-	jmp 	print
+	jmp 	printModeAndPage
 
 changeSeg:
 	push 	toprint_seg2
 	pop 	es	
-	jmp 	print
+	jmp 	printModeAndPage
 	
 width40:		
 	mov 	bx, toprint_off1
+	mov		cursor_start_column, 04
 
-print:			
+printModeAndPage:			
 	push 	es
 	push 	0
 	pop 	es
@@ -67,6 +72,7 @@ continuePrint:
 	mov 	al, video_page
 	add 	al, 30h
 	mov		es:[bx], al
+	call 	printTable
 	jmp 	exit
 
 exitErr:
@@ -141,5 +147,50 @@ changePageEnd:
 	ret
 changePage endp
 
+printTable proc
+	mov 	dh, cursor_start_row	
+	mov 	dl, cursor_start_column
+	call 	setCurcorPosition
+	mov 	cx, 000eh 
+	mov		al, 20h	
+	printLine:
+		mov 	bl, cl
+		push 	cx
+		mov		cx, 010h
+		printRow: 			
+			call	putChar
+			add		al, 1
+			add		cursor_cur_column, 2
+			mov 	dh, cursor_cur_row	
+			mov 	dl, cursor_cur_column
+			call 	setCurcorPosition
+			loop 	printRow
+		add		cursor_cur_row, 1
+		mov 	dh, cursor_cur_row	
+		mov 	dl, cursor_start_column
+		call 	setCurcorPosition		
+		pop		cx						
+		loop 	printLine
+	ret
+printTable endp
+
+setCurcorPosition proc
+	mov 	ah, 02h
+	mov 	bh, video_page	
+	int 	10h	
+	mov 	cursor_cur_row, dh
+	mov 	cursor_cur_column, dl
+	ret
+setCurcorPosition endp
+
+putChar proc ;al
+	push 	cx
+	mov 	ah, 09h	
+	mov 	bh, video_page		
+	mov 	cx, 1h	
+	int 	10h
+	pop 	cx
+	ret
+putChar endp
 
 end entry
