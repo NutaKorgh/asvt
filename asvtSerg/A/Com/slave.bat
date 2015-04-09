@@ -1,0 +1,1 @@
+"C:\Program Files\DOSBox-0.74\DOSBox.exe" -noconsole -conf slave.conf

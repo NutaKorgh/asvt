@@ -1,0 +1,124 @@
+Turbo Assembler	 Version 3.1	    06/03/12 01:28:08	    Page 1
+21.ASM
+
+
+
+      1	    0000			 model tiny
+      2					 .486
+      3	    0000			 .code
+      4					 org 100h
+      5	    0100			 start:
+      6						 ;jmp short init
+      7	    0100  08EB				 a	 dw	 08EBh
+      8	    0102  9090				 b	 dw	 9090h
+      9	    0104			 obr:
+     10						 ;les bx,dword ptr a
+     11						 ;jmp  es:bx
+     12						 ;push b
+     13						 ;push a
+     14						 ;retf
+     15	    0104  66| 2E: FF 36	0100r		 push	 dword	 ptr	 cs:[a]
+     16	    010A  CB				 retf
+     17	    010B			 init:
+     18	    010B  E8 0037			 call bbb
+     19
+     20						 ;mov bx,2Ch
+     21						 ;mov ax,[bx]
+     22						 ;push ax
+     23						 ;pop es
+     24						 ;mov es,[2Ch]
+     25	    010E  8E 06	2C 00			 db 8Eh,06h,2Ch,00h
+     26	    0112  B4 49				 mov ah,49h
+     27	    0114  CD 21				 int 21h
+     28
+     29	    0116  BB 0002			 mov bx,2
+     30	    0119  B4 48				 mov ah,48h
+     31	    011B  CD 21				 int 21h
+     32
+     33						 ;mov bx,2Ch
+     34						 ;mov [bx],ax
+     35						 ;mov [2Ch],ax
+     36	    011D  A3 2C	00			 db 0A3h,2Ch,00h
+     37	    0120  8E C0				 mov es,ax
+     38	    0122  33 FF				 xor di,di
+     39	    0124  BE 0163r			 mov si,offset str0
+     40	    0127  B1 08				 mov cl,8
+     41	    0129  F3> A4			 rep movsb
+     42
+     43	    012B  B8 3521			 mov ax, 3521h
+     44	    012E  CD 21				 int 21h
+     45	    0130  89 1E	0100r			 mov	 a,	 bx
+     46	    0134  8C 06	0102r			 mov	 b,	 es
+     47
+     48	    0138  BA 0104r			 mov dx, offset	obr
+     49	    013B  B8 2521			 mov ax,2521h
+     50	    013E  CD 21				 int 21h
+     51
+     52	    0140  BA 010Br			 mov dx, offset	init
+     53	    0143  CD 27				 int 27h
+     54
+     55	    0145			 bbb:
+     56	    0145  8C C8				 mov ax,cs
+     57	    0147  86 E0				 xchg ah,al
+Turbo Assembler	 Version 3.1	    06/03/12 01:28:08	    Page 2
+21.ASM
+
+
+
+     58	    0149  E8 0002			 call tst
+     59	    014C  8C C8				 mov ax,cs
+     60	    014E			 tst:
+     61	    014E  50				 push ax
+     62	    014F  C0 E8	04			 shr al, 4
+     63	    0152  E8 0003			 call _1
+     64	    0155  58				 pop ax
+     65	    0156  24 0F				 and al, 0Fh
+     66	    0158  3C 0A			 _1:	 cmp al, 0Ah
+     67	    015A  1C 69				 sbb al, 69h
+     68	    015C  2F				 das
+     69	    015D  92				 xchg dx, ax
+     70	    015E  B4 02				 mov ah, 2
+     71	    0160  CD 21				 int 21h
+     72	    0162  C3				 ret
+     73	    0163  78 00	00 01 00 58 00		 str0 db 'x',0,0,1,0,'X',0
+     74					 end start
+Turbo Assembler	 Version 3.1	    06/03/12 01:28:08	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "06/03/12"
+??FILENAME			  Text	 "21	  "
+??TIME				  Text	 "01:28:08"
+??VERSION			  Number 030A
+@32BIT				  Text	 0
+@CODE				  Text	 DGROUP
+@CODESIZE			  Text	 0
+@CPU				  Text	 1F1FH
+@CURSEG				  Text	 _TEXT
+@DATA				  Text	 DGROUP
+@DATASIZE			  Text	 0
+@FILENAME			  Text	 21
+@INTERFACE			  Text	 00H
+@MODEL				  Text	 1
+@STACK				  Text	 DGROUP
+@WORDSIZE			  Text	 2
+A				  Word	 DGROUP:0100
+B				  Word	 DGROUP:0102
+BBB				  Near	 DGROUP:0145
+INIT				  Near	 DGROUP:010B
+OBR				  Near	 DGROUP:0104
+START				  Near	 DGROUP:0100
+STR0				  Byte	 DGROUP:0163
+TST				  Near	 DGROUP:014E
+_1				  Near	 DGROUP:0158
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+DGROUP				  Group
+  _DATA				  16  0000 Word	  Public  DATA
+  _TEXT				  16  016A Word	  Public  CODE
+

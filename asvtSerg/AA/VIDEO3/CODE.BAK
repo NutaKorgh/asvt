@@ -1,0 +1,51 @@
+model tiny
+.286
+.code
+org 100h
+start:
+mov ah,0Fh
+int 10h
+mov page_number,bh
+mov width,ah
+;mov ah,3
+;int 10h
+;mov cur_pl,dx
+
+mov bh,22h
+xor cx,cx
+mov dx,204Fh
+mov ax,0600h
+int 10h
+
+inc cx
+mov bh,page_number
+;xor dx,dx
+mov dx,0420h
+xor ax,ax
+
+next:
+mov ah,2
+int 10h
+
+mov bl,14h
+mov ah,9
+int 10h
+
+inc ax
+inc dx
+test dl,10h
+jz next
+inc dh
+sub dl,16
+cmp dx,1420h
+je fin
+jmp next
+fin:
+mov ah,2
+mov dx,cur_pl
+;int 10h
+ret
+page_number db ?
+width db ?
+cur_pl dw ?
+end start

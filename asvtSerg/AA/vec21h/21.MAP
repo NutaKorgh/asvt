@@ -1,0 +1,19 @@
+
+ Start  Stop   Length Name               Class
+
+ 00000H 00163H 00164H _TEXT              CODE
+ 00164H 00164H 00000H _DATA              DATA
+
+
+Detailed map of segments
+
+ 0000:0000 0164 C=CODE   S=_TEXT          G=DGROUP  M=21.ASM     ACBP=48
+ 0000:0164 0000 C=DATA   S=_DATA          G=DGROUP  M=21.ASM     ACBP=48
+
+  Address         Publics by Name
+
+
+  Address         Publics by Value
+
+
+

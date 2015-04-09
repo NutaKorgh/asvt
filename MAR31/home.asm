@@ -151,8 +151,8 @@ printTable proc
 	mov 	dh, cursor_start_row	
 	mov 	dl, cursor_start_column
 	call 	setCurcorPosition
-	mov 	cx, 000eh 
-	mov		al, 20h	
+	mov 	cx, 0010h 
+	mov		al, 00h	
 	printLine:
 		mov 	bl, cl
 		push 	cx
