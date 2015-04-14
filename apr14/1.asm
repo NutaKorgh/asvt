@@ -97,10 +97,10 @@ _iret:
     pop		ax
     iret
 
-buffer db ?,?,?,?,?,?,?,?
 golova dw 0
 hvost dw 0
+lines db '---------',13,10,'$'
 tes dw ?
 tbx dw ?
-lines db '_________',13,10,'$'
+buffer db 8 dup(?)
 end start
